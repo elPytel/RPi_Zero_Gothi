@@ -28,7 +28,7 @@ if __name__=='__main__':
         draw = ImageDraw.Draw(image1)
         font = ImageFont.truetype('Font.ttf', 20)
         font10 = ImageFont.truetype('Font.ttf',13)
-        """
+        
         print ("***draw line")
         draw.line([(0,0),(127,0)], fill = 0)
         draw.line([(0,0),(0,63)], fill = 0)
@@ -36,7 +36,7 @@ if __name__=='__main__':
         draw.line([(127,0),(127,63)], fill = 0)
         print ("***draw rectangle")
         
-        print ("***draw text")
+        """
         draw.text((30,0), 'Waveshare ', font = font10, fill = 0)
         draw.text((28,20), u'微雪电子 ', font = font, fill = 0)
 
@@ -75,5 +75,8 @@ if __name__=='__main__':
         print("Power:         {:6.3f} W".format(power))
         print("Percent:       {:3.1f}%".format(percent))
         print("")
+
+        text = "Percent: " + str(percent) + "%"
+        draw.text((30,0), text, font = font10, fill = 0)
 
         time.sleep(2)
