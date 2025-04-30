@@ -1,6 +1,17 @@
 #!/bin/bash
 
-# Install Python dependencies
-pip install -r requirements.txt
+python_dependencies="requirements.txt"
+apt_dependencies="apt-dependencies.txt"
 
-echo "Installation and compilation completed."
+# Install apt dependencies
+sudo apt-get update
+if [ -f $apt_dependencies ]; then
+    xargs sudo apt-get -y install < $apt_dependencies
+fi
+
+# Install python dependencies
+if [ -f $python_dependencies ]; then 
+    pip install -r $python_dependencies
+fi
+
+echo -e "Done!"
