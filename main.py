@@ -24,8 +24,8 @@ if __name__=='__main__':
     disp.clear()
 
     # Create blank image for drawing.
-    image1 = Image.new('1', (disp.width, disp.height), "WHITE")
-    draw = ImageDraw.Draw(image1)
+    image = Image.new('1', (disp.width, disp.height), "WHITE")
+    draw = ImageDraw.Draw(image)
     font = ImageFont.truetype('Font.ttf', 20)
     font10 = ImageFont.truetype('Font.ttf', 13)    
     """
@@ -67,8 +67,10 @@ if __name__=='__main__':
         texts.append(text)
         text = f"Percent: {percent:3.1f}%"
         texts.append(text)
+        
         # clear the image
-        image1 = Image.new('1', (disp.width, disp.height), "WHITE")
+        image = Image.new('1', (disp.width, disp.height), "WHITE")
+        draw = ImageDraw.Draw(image)
         x_pos = 5
         y_pos = 5
         x_shift = 0
@@ -77,7 +79,7 @@ if __name__=='__main__':
             draw.text((x_pos, y_pos), text, font = font10, fill = 0)
             x_pos += x_shift
             y_pos += y_shift
-        disp.ShowImage(disp.getbuffer(image1))
+        disp.ShowImage(disp.getbuffer(image))
 
         time.sleep(2)
     
