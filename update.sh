@@ -19,7 +19,6 @@ fi
 
 # run install.sh
 if [ -f install.sh ]; then
-    chmod +x install.sh
     ./install.sh
     if [ $? -ne 0 ]; then
         echo "Error: Failed to run install.sh."
