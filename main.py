@@ -15,7 +15,7 @@ if __name__=='__main__':
     ina219 = INA219(addr=0x43)
     print_info("Initializing battery driver: INA219...")
     disp = SH1106.SH1106()
-    print_info("Initializing displej driver: INA219...")
+    print_info("Initializing display driver: INA219...")
 
     try:
         # Initialize library.

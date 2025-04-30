@@ -206,6 +206,7 @@ class INA219:
             cap_percent = 100
         if (cap_percent < 0):
             cap_percent = 0
+        return cap_percent
         
 if __name__=='__main__':
     # Create an INA219 instance.
