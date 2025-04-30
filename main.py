@@ -27,14 +27,19 @@ else:
     import SH1106_mock as SH1106
     from INA219_mock import *
 
+
 if __name__=='__main__':    
     try:
         ina219 = INA219(addr=0x43)
         print_info("Initializing battery driver: INA219...")
+    except IOError as e:
+        print_error(str(e)) 
+    
+    try:
         disp = SH1106.SH1106()
         print_info("Initializing display driver: INA219...")
         
-        font = ImageFont.truetype('Font.ttf', 20)
+        font20 = ImageFont.truetype('Font.ttf', 20)
         font10 = ImageFont.truetype('Font.ttf', 13) 
     except IOError as e:
         print_error(str(e))
@@ -45,8 +50,19 @@ if __name__=='__main__':
     disp.clear()
 
     # Create blank image for drawing.
-    image = Image.new('1', (disp.width, disp.height), "WHITE")
-    draw = ImageDraw.Draw(image)   
+    image = Image.new('1', (disp.width, disp.height), "WHITE")  # Bílý podklad
+    draw = ImageDraw.Draw(image)
+
+    # Načtení obrázku
+    img = Image.open('loading.png')
+    img = img.resize((disp.width, disp.height))  # Změna velikosti na rozměry displeje
+    img = img.convert('L')  # Převod na stupně šedi
+    img = img.convert('1')  # Převod na jednobitový formát (černobílý)
+
+    # Vložení obrázku do bufferu
+    image.paste(img, (0, 0))
+    disp.ShowImage(disp.getbuffer(image))
+    time.sleep(20)
     """
     draw.text((30,0), 'Waveshare ', font = font10, fill = 0)
     draw.text((28,20), u'微雪电子 ', font = font, fill = 0)
@@ -91,9 +107,9 @@ if __name__=='__main__':
         image = Image.new('1', (disp.width, disp.height), "WHITE")
         draw = ImageDraw.Draw(image)
         x_pos = 5
-        y_pos = 5
+        y_pos = 2
         x_shift = 0
-        y_shift = 15
+        y_shift = 13
         for text in texts:
             draw.text((x_pos, y_pos), text, font = font10, fill = 0)
             x_pos += x_shift

@@ -33,6 +33,9 @@ class SH1106(object):
     
     def getbuffer(self, image):
         """Convert the image to a buffer (mock implementation)."""
+        # if not 1-bit image, raise an error
+        if image.mode != "1":
+            raise ValueError("Image must be in 1-bit mode")
         return image
     
     def ShowImage(self, buffer):
@@ -49,7 +52,7 @@ class SH1106(object):
         """Update the tkinter window with the current image."""
         # convert from 1-bit to 8-bit Color
         # black background with light blue foreground
-        
+
         self.tk_image = ImageTk.PhotoImage(self.buffer.convert("RGB").resize((self.width * SIZE_MULTIPLIER, self.height * SIZE_MULTIPLIER), Image.NEAREST))
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.tk_image)
         self.window.update()
