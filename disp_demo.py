@@ -28,6 +28,7 @@ try:
     draw.line([(0,63),(127,63)], fill = 0)
     draw.line([(127,0),(127,63)], fill = 0)
     print ("***draw rectangle")
+    time.sleep(1)
     
     print ("***draw text")
     draw.text((30,0), 'Waveshare ', font = font10, fill = 0)
@@ -43,6 +44,7 @@ try:
     Himage2.paste(bmp, (0,5))
     # Himage2=Himage2.rotate(180) 	
     disp.ShowImage(disp.getbuffer(Himage2))
+    time.sleep(2)
 
 except IOError as e:
     print(e)
