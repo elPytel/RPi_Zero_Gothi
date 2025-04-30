@@ -1,13 +1,31 @@
-import SH1106
 import time
-import config
 import traceback
-
 from basic_colors import *
-from INA219 import *
+
 from PIL import Image, ImageDraw, ImageFont
 
+def is_raspberry_pi():
+    try:
+        with open('/proc/cpuinfo', 'r') as f:
+            cpuinfo = f.read()
+        return 'Raspberry Pi' in cpuinfo or 'BCM' in cpuinfo
+    except FileNotFoundError:
+        return False
 
+RPI=is_raspberry_pi()
+
+if RPI:
+    print_success("Running on Raspberry Pi")
+else:
+    print_warning("Running on a different device than Raspberry Pi")
+
+if RPI:
+    import config
+    import SH1106
+    from INA219 import *
+else:
+    import SH1106_mock as SH1106
+    from INA219_mock import *
 
 if __name__=='__main__':    
     try:
@@ -15,6 +33,9 @@ if __name__=='__main__':
         print_info("Initializing battery driver: INA219...")
         disp = SH1106.SH1106()
         print_info("Initializing display driver: INA219...")
+        
+        font = ImageFont.truetype('Font.ttf', 20)
+        font10 = ImageFont.truetype('Font.ttf', 13) 
     except IOError as e:
         print_error(str(e))
 
@@ -25,9 +46,7 @@ if __name__=='__main__':
 
     # Create blank image for drawing.
     image = Image.new('1', (disp.width, disp.height), "WHITE")
-    draw = ImageDraw.Draw(image)
-    font = ImageFont.truetype('Font.ttf', 20)
-    font10 = ImageFont.truetype('Font.ttf', 13)    
+    draw = ImageDraw.Draw(image)   
     """
     draw.text((30,0), 'Waveshare ', font = font10, fill = 0)
     draw.text((28,20), u'微雪电子 ', font = font, fill = 0)
@@ -67,14 +86,14 @@ if __name__=='__main__':
         texts.append(text)
         text = f"Percent: {percent:3.1f}%"
         texts.append(text)
-        
+
         # clear the image
         image = Image.new('1', (disp.width, disp.height), "WHITE")
         draw = ImageDraw.Draw(image)
         x_pos = 5
         y_pos = 5
         x_shift = 0
-        y_shift = 30
+        y_shift = 15
         for text in texts:
             draw.text((x_pos, y_pos), text, font = font10, fill = 0)
             x_pos += x_shift
