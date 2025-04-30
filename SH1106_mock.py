@@ -9,11 +9,11 @@ FOREGROUND_COLOR = "blue"
 
 class SH1106(object):
     def __init__(self):
-        self.width = LCD_WIDTH*SIZE_MULTIPLIER
-        self.height = LCD_HEIGHT*SIZE_MULTIPLIER
+        self.width = LCD_WIDTH
+        self.height = LCD_HEIGHT
         self.window = tk.Tk()
         self.window.title("SH1106 Mock Display")
-        self.canvas = tk.Canvas(self.window, width=self.width, height=self.height, bg="black")
+        self.canvas = tk.Canvas(self.window, width=self.width*SIZE_MULTIPLIER, height=self.height*SIZE_MULTIPLIER, bg="black")
         self.canvas.pack()
         self.tk_image = None
         self.clear()
@@ -27,7 +27,7 @@ class SH1106(object):
         
     def reset(self):
         """Reset the display"""
-        self.buffer = Image.new("1", (self.width, self.height), "WHITE")
+        self.buffer = Image.new("1", (self.width*SIZE_MULTIPLIER, self.height*SIZE_MULTIPLIER), "WHITE")
         self.__update_display()
         print("SH1106 Mock: Reset")
     
@@ -45,7 +45,7 @@ class SH1106(object):
 
     def clear(self):
         """Clear the display."""
-        self.buffer = Image.new("1", (self.width, self.height), "WHITE")
+        self.buffer = Image.new("1", (self.width*SIZE_MULTIPLIER, self.height*SIZE_MULTIPLIER), "WHITE")
         self.__update_display()
 
     def __update_display(self):
