@@ -18,6 +18,9 @@ _REG_CURRENT                = 0x04
 # CALIBRATION REGISTER (R/W)
 _REG_CALIBRATION            = 0x05
 
+LOW_VOLTAGE = 3.0
+HIGH_VOLTAGE = 4.2
+
 class BusVoltageRange:
     """Constants for ``bus_voltage_range``"""
     RANGE_16V               = 0x00      # set bus voltage range to 16V
@@ -187,6 +190,22 @@ class INA219:
         if value > 32767:
             value -= 65535
         return value * self._power_lsb
+    
+    def getRemainingPercent(self):
+        """
+        Returns the remaining battery percentage based on the bus voltage. \n
+        The voltage range is defined between LOW_VOLTAGE (3) and HIGH_VOLTAGE (4.2). \n
+        The percentage is calculated as:
+
+        ((bus_voltage - LOW_VOLTAGE) / (HIGH_VOLTAGE - LOW_VOLTAGE)) * 100
+        """
+        voltage_range = HIGH_VOLTAGE - LOW_VOLTAGE
+        bus_voltage = self.getBusVoltage_V()
+        cap_percent = (bus_voltage - LOW_VOLTAGE)/voltage_range*100
+        if (cap_percent > 100):
+            cap_percent = 100
+        if (cap_percent < 0):
+            cap_percent = 0
         
 if __name__=='__main__':
     # Create an INA219 instance.
@@ -196,9 +215,7 @@ if __name__=='__main__':
         shunt_voltage = ina219.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
         current = ina219.getCurrent_mA()                   # current in mA
         power = ina219.getPower_W()                        # power in W
-        p = (bus_voltage - 3)/1.2*100
-        if(p > 100):p = 100
-        if(p < 0):p = 0
+        percent = ina219.getRemainingPercent()
 
         # INA219 measure bus voltage on the load side. So PSU voltage = bus_voltage + shunt_voltage
         #print("PSU Voltage:   {:6.3f} V".format(bus_voltage + shunt_voltage))
@@ -206,7 +223,7 @@ if __name__=='__main__':
         print("Load Voltage:  {:6.3f} V".format(bus_voltage))
         print("Current:       {:6.3f} A".format(current/1000))
         print("Power:         {:6.3f} W".format(power))
-        print("Percent:       {:3.1f}%".format(p))
+        print("Percent:       {:3.1f}%".format(percent))
         print("")
 
         time.sleep(2)
