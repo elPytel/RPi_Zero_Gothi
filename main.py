@@ -27,16 +27,7 @@ if __name__=='__main__':
     image1 = Image.new('1', (disp.width, disp.height), "WHITE")
     draw = ImageDraw.Draw(image1)
     font = ImageFont.truetype('Font.ttf', 20)
-    font10 = ImageFont.truetype('Font.ttf', 13)
-    
-    print ("***draw line")
-    draw.line([(0,0),(127,0)], fill = 0)
-    draw.line([(0,0),(0,63)], fill = 0)
-    draw.line([(0,63),(127,63)], fill = 0)
-    draw.line([(127,0),(127,63)], fill = 0)
-    print ("***draw rectangle")
-    disp.ShowImage(disp.getbuffer(image1))
-    
+    font10 = ImageFont.truetype('Font.ttf', 13)    
     """
     draw.text((30,0), 'Waveshare ', font = font10, fill = 0)
     draw.text((28,20), u'微雪电子 ', font = font, fill = 0)
@@ -69,13 +60,36 @@ if __name__=='__main__':
         print("Percent:       {:3.1f}%".format(percent))
         print("")
 
-        text = "Percent: " + str(percent) + "%"
-        draw.text((30,0), text, font = font10, fill = 0)
+        texts = []
+        text = f"Voltage: {bus_voltage:6.3f} V"
+        texts.append(text)
+        text = f"Current: {current/1000:6.3f} A"
+        texts.append(text)
+        text = f"Percent: {percent:3.1f}%"
+        texts.append(text)
+        # clear the image
+        image1 = Image.new('1', (disp.width, disp.height), "WHITE")
+        x_pos = 5
+        y_pos = 5
+        x_shift = 0
+        y_shift = 30
+        for text in texts:
+            draw.text((x_pos, y_pos), text, font = font10, fill = 0)
+            x_pos += x_shift
+            y_pos += y_shift
         disp.ShowImage(disp.getbuffer(image1))
 
         time.sleep(2)
     
     """
+    print ("***draw line")
+    draw.line([(0,0),(127,0)], fill = 0)
+    draw.line([(0,0),(0,63)], fill = 0)
+    draw.line([(0,63),(127,63)], fill = 0)
+    draw.line([(127,0),(127,63)], fill = 0)
+    print ("***draw rectangle")
+    disp.ShowImage(disp.getbuffer(image1))
+
     except KeyboardInterrupt:    
         print("ctrl + c:")
         disp.RPI.module_exit()
