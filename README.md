@@ -1,5 +1,7 @@
 # RPi_Zero_Gothi
 
+![loading](./documentation/images/loading.png)
+
 ## Hardware
 
 I am using a Raspberry Pi Zero WH with a Waveshare UPS HAT and a 1.3inch OLED HAT. I have used demo code from the Waveshare website for OLED HAT and UPS HAT in this project.
@@ -24,5 +26,18 @@ To disable the system packages check in pip, run the above command.
 
 [waveshare.com/wiki](https://www.waveshare.com/wiki/1.3inch_OLED_HAT)
 
-## Fonts
-Fonts Doto, Tiny5 are downloaded from [Google Fonts](https://fonts.google.com/).
+## Assets
+
+### Art
+
+Je převzata z projektu [Flipper Zero](https://github.com/flipperdevices/flipperzero-firmware/tree/dev).
+
+### Fonts
+Fonts:
+- Doto, 
+- Tiny5
+
+are downloaded from [Google Fonts](https://fonts.google.com/).
+
+## Software
+

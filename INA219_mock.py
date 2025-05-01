@@ -6,10 +6,10 @@ HIGH_VOLTAGE = 4.2
 CAPACITY = 1000 # mAh
 
 class INA219:
-    def __init__(self, i2c_bus=1, addr=0x40):
+    def __init__(self, i2c_bus=1, addr=0x40, rated_capacity: int=CAPACITY):
         self.addr = addr
         self.time = time.time()
-        self.battery_capacity_mAh = CAPACITY
+        self.battery_capacity_mAh = rated_capacity
         self.voltage_V = self.__generate_voltage()
         self.current_mA = self.__generate_current()
 
@@ -65,3 +65,23 @@ class INA219:
         """
         self.__simulate_discharge()
         return 100.0 * (self.getBusVoltage_V() - LOW_VOLTAGE) / (HIGH_VOLTAGE - LOW_VOLTAGE)
+    
+    def getRemainingTime(self) -> int:
+        """
+        Returns the remaining time in seconds based on the current and power values.
+        The time is calculated as:
+        (remaining_capacity / current) * 3600
+        """
+        # Get the current in mA
+        current = self.getCurrent_mA()
+        
+        # Calculate the remaining capacity in mAh
+        remaining_capacity = self.getRemainingPercent() * self.battery_capacity_mAh / 100
+        
+        # Calculate the remaining time in seconds
+        if current > 0: # charging
+            remaining_time = (100-remaining_capacity / current) * 3600
+            return int(remaining_time)
+        else: # discharging
+            remaining_time = abs(remaining_capacity / current) * 3600
+            return int(remaining_time)

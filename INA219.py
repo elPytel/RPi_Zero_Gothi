@@ -20,6 +20,7 @@ _REG_CALIBRATION            = 0x05
 
 LOW_VOLTAGE = 3.0
 HIGH_VOLTAGE = 4.2
+CAPACITY = 1000 # mAh
 
 class BusVoltageRange:
     """Constants for ``bus_voltage_range``"""
@@ -60,9 +61,10 @@ class Mode:
 
 
 class INA219:
-    def __init__(self, i2c_bus=1, addr=0x40):
+    def __init__(self, i2c_bus=1, addr=0x40, rated_capacity: int=CAPACITY):
         self.bus = smbus.SMBus(i2c_bus);
         self.addr = addr
+        self.capacity_mAh = rated_capacity
 
         # Set chip to known config values to start
         self._cal_value = 0
@@ -207,6 +209,26 @@ class INA219:
         if (cap_percent < 0):
             cap_percent = 0
         return cap_percent
+    
+    def getRemainingTime(self) -> int:
+        """
+        Returns the remaining time in seconds based on the current and power values.
+        The time is calculated as:
+        (remaining_capacity / current) * 3600
+        """
+        # Get the current in mA
+        current = self.getCurrent_mA()
+        
+        # Calculate the remaining capacity in mAh
+        remaining_capacity = self.getRemainingPercent() * self.capacity_mAh / 100
+        
+        # Calculate the remaining time in seconds
+        if current > 0: # charging
+            remaining_time = (100-remaining_capacity / current) * 3600
+            return int(remaining_time)
+        else: # discharging
+            remaining_time = abs(remaining_capacity / current) * 3600
+            return int(remaining_time)
         
 if __name__=='__main__':
     # Create an INA219 instance.

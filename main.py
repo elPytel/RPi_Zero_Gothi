@@ -35,17 +35,21 @@ else:
     import SH1106_mock as SH1106
     from INA219_mock import *
 
+def sec_to_hhmmss(seconds: int) -> str:
+    """
+    Convert seconds to hh:mm:ss format.
+    """
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = seconds % 60
+    return f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
 
 if __name__=='__main__':    
     try:
         ina219 = INA219(addr=0x43)
-        print_success("Initializing battery driver: INA219...")
-    except IOError as e:
-        print_error(str(e)) 
-    
-    try:
+        print_success("Initialized: battery driver - INA219")
         disp = SH1106.SH1106()
-        print_success("Initializing display driver: SH1106...")
+        print_success("Initialized: display driver - SH1106")
         
         # join path to assets
         font_path = os.path.join(ASSETS, FONTS, FONT)
@@ -54,12 +58,12 @@ if __name__=='__main__':
         font20 = ImageFont.truetype(font_path, 20)
         font10 = ImageFont.truetype(font_path, 13) 
         font10 = ImageFont.truetype(os.path.join(ASSETS, FONTS, 'Doto-Black.ttf'), 10) 
+        print_success("Loaded fonts.")
     except IOError as e:
         print_error(str(e))
 
     # Initialize library.
     disp.Init()
-    # Clear display.
     disp.clear()
 
     # Create blank image for drawing.
@@ -67,16 +71,18 @@ if __name__=='__main__':
     draw = ImageDraw.Draw(image)
 
     # Načtení obrázku
-    img_path = os.path.join(ASSETS, 'loading.png')
+    img_path = os.path.join(ASSETS, 'icons', 'Settings', 'LoadingHourglass_24x24.png')
     img = Image.open(img_path)
-    img = img.resize((disp.width, disp.height))  # Změna velikosti na rozměry displeje
-    img = img.convert('L')  # Převod na stupně šedi
-    trashold = 50
-    img = img.point(lambda x: 0 if x < trashold else 255, '1')
-    img = img.convert('1') # Převod na jednobitový formát (černobílý)
     
     # Vložení obrázku do bufferu
-    image.paste(img, (0, 0))
+    def center_image(canvas, img):
+        # Vypočítání pozice pro centrování obrázku
+        x = (canvas.width - img.width) // 2
+        y = (canvas.height - img.height) // 2
+        return x, y
+
+    x, y = center_image(image, img)
+    image.paste(img, (x, y))
     disp.ShowImage(disp.getbuffer(image))
     time.sleep(5)
 
@@ -86,6 +92,7 @@ if __name__=='__main__':
         current = ina219.getCurrent_mA()                   # current in mA
         power = ina219.getPower_W()                        # power in W
         percent = ina219.getRemainingPercent()
+        remaining_time = ina219.getRemainingTime()
 
         # INA219 measure bus voltage on the load side. So PSU voltage = bus_voltage + shunt_voltage
         #print("PSU Voltage:   {:6.3f} V".format(bus_voltage + shunt_voltage))
@@ -98,13 +105,14 @@ if __name__=='__main__':
             print("")
 
         texts = []
-        text = f"Voltage: {bus_voltage:6.3f} V"
+        #text = f"Voltage: {bus_voltage:6.3f} V"
+        text = f"Time:    {sec_to_hhmmss(remaining_time)}"
         texts.append(text)
         text = f"Current: {current/1000:6.3f} A"
         texts.append(text)
         text = f"Power:   {power:6.3f} W"
         texts.append(text)
-        text = f"Percent: {percent:3.1f}%"
+        text = f"Percent:  {percent:3.1f}%"
         texts.append(text)
 
         # clear the image
@@ -123,12 +131,10 @@ if __name__=='__main__':
         time.sleep(2)
     
     """
-    print ("***draw line")
     draw.line([(0,0),(127,0)], fill = 0)
     draw.line([(0,0),(0,63)], fill = 0)
     draw.line([(0,63),(127,63)], fill = 0)
     draw.line([(127,0),(127,63)], fill = 0)
-    print ("***draw rectangle")
     disp.ShowImage(disp.getbuffer(image1))
 
     except KeyboardInterrupt:    
