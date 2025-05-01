@@ -23,3 +23,6 @@ To disable the system packages check in pip, run the above command.
 ![350](https://www.waveshare.com/w/upload/thumb/e/e3/1.3inch-OLED-HAT-1.jpg/600px-1.3inch-OLED-HAT-1.jpg)
 
 [waveshare.com/wiki](https://www.waveshare.com/wiki/1.3inch_OLED_HAT)
+
+## Fonts
+Fonts Doto, Tiny5 are downloaded from [Google Fonts](https://fonts.google.com/).

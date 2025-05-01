@@ -17,7 +17,10 @@ def is_raspberry_pi():
 DEBUG = False
 RPI=is_raspberry_pi()
 ASSETS = "assets"
+FONTS = "fonts"
 FONT = 'Font.ttf'
+#FONT = 'Doto-Black.ttf'
+#FONT = 'Tiny5-Regular.ttf'
 
 if RPI:
     print_success("Running on Raspberry Pi")
@@ -45,11 +48,12 @@ if __name__=='__main__':
         print_success("Initializing display driver: SH1106...")
         
         # join path to assets
-        font_path = os.path.join(ASSETS, FONT)
+        font_path = os.path.join(ASSETS, FONTS, FONT)
         if not os.path.exists(font_path):
             print_error(f"Font file {font_path} not found.")
         font20 = ImageFont.truetype(font_path, 20)
         font10 = ImageFont.truetype(font_path, 13) 
+        font10 = ImageFont.truetype(os.path.join(ASSETS, FONTS, 'Doto-Black.ttf'), 10) 
     except IOError as e:
         print_error(str(e))
 
