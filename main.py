@@ -1,3 +1,4 @@
+import os
 import time
 import traceback
 import numpy as np
@@ -15,6 +16,8 @@ def is_raspberry_pi():
 
 DEBUG = False
 RPI=is_raspberry_pi()
+ASSETS = "assets"
+FONT = 'Font.ttf'
 
 if RPI:
     print_success("Running on Raspberry Pi")
@@ -33,16 +36,20 @@ else:
 if __name__=='__main__':    
     try:
         ina219 = INA219(addr=0x43)
-        print_info("Initializing battery driver: INA219...")
+        print_success("Initializing battery driver: INA219...")
     except IOError as e:
         print_error(str(e)) 
     
     try:
         disp = SH1106.SH1106()
-        print_info("Initializing display driver: SH1106...")
+        print_success("Initializing display driver: SH1106...")
         
-        font20 = ImageFont.truetype('Font.ttf', 20)
-        font10 = ImageFont.truetype('Font.ttf', 13) 
+        # join path to assets
+        font_path = os.path.join(ASSETS, FONT)
+        if not os.path.exists(font_path):
+            print_error(f"Font file {font_path} not found.")
+        font20 = ImageFont.truetype(font_path, 20)
+        font10 = ImageFont.truetype(font_path, 13) 
     except IOError as e:
         print_error(str(e))
 
@@ -56,7 +63,8 @@ if __name__=='__main__':
     draw = ImageDraw.Draw(image)
 
     # Načtení obrázku
-    img = Image.open('loading.png')
+    img_path = os.path.join(ASSETS, 'loading.png')
+    img = Image.open(img_path)
     img = img.resize((disp.width, disp.height))  # Změna velikosti na rozměry displeje
     img = img.convert('L')  # Převod na stupně šedi
     trashold = 50
