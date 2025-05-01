@@ -26,6 +26,7 @@ if RPI:
     print_success("Running on Raspberry Pi")
 else:
     print_warning("Running on a different device than Raspberry Pi")
+    DEBUG = True
 
 if RPI:
     import config
@@ -84,7 +85,7 @@ if __name__=='__main__':
     x, y = center_image(image, img)
     image.paste(img, (x, y))
     disp.ShowImage(disp.getbuffer(image))
-    time.sleep(5)
+    time.sleep(1)
 
     while True:
         bus_voltage = ina219.getBusVoltage_V()             # voltage on V- (load side)
@@ -95,14 +96,18 @@ if __name__=='__main__':
         remaining_time = ina219.getRemainingTime()
 
         # INA219 measure bus voltage on the load side. So PSU voltage = bus_voltage + shunt_voltage
-        #print("PSU Voltage:   {:6.3f} V".format(bus_voltage + shunt_voltage))
-        #print("Shunt Voltage: {:9.6f} V".format(shunt_voltage))
         if DEBUG:
+            print("PSU Voltage:   {:6.3f} V".format(bus_voltage + shunt_voltage))
+            print("Shunt Voltage: {:9.6f} V".format(shunt_voltage))
             print("Load Voltage:  {:6.3f} V".format(bus_voltage))
             print("Current:       {:6.3f} A".format(current/1000))
             print("Power:         {:6.3f} W".format(power))
             print("Percent:       {:3.1f}%".format(percent))
             print("")
+        
+        if current > 0:
+            # charging
+            print_info("Charging")
 
         texts = []
         #text = f"Voltage: {bus_voltage:6.3f} V"
@@ -127,6 +132,24 @@ if __name__=='__main__':
             x_pos += x_shift
             y_pos += y_shift
         disp.ShowImage(disp.getbuffer(image))
+
+        # Kontrola stisknutí kláves
+        if disp.RPI.digital_read(disp.RPI.GPIO_KEY_UP_PIN):
+            print("Key UP pressed")
+        if disp.RPI.digital_read(disp.RPI.GPIO_KEY_DOWN_PIN):
+            print("Key DOWN pressed")
+        if disp.RPI.digital_read(disp.RPI.GPIO_KEY_LEFT_PIN):
+            print("Key LEFT pressed")
+        if disp.RPI.digital_read(disp.RPI.GPIO_KEY_RIGHT_PIN):
+            print("Key RIGHT pressed")
+        if disp.RPI.digital_read(disp.RPI.GPIO_KEY_PRESS_PIN):
+            print("Key ENTER pressed")
+        if disp.RPI.digital_read(disp.RPI.GPIO_KEY1_PIN):
+            print("Key 1 pressed")
+        if disp.RPI.digital_read(disp.RPI.GPIO_KEY2_PIN):
+            print("Key 2 pressed")
+        if disp.RPI.digital_read(disp.RPI.GPIO_KEY3_PIN):
+            print("Key 3 pressed")
 
         time.sleep(2)
     

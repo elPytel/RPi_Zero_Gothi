@@ -26,10 +26,10 @@ class INA219:
         return self.voltage_V
 
     def getCurrent_mA(self):
-        return -self.current_mA
+        return -self.current_mA 
 
     def getPower_W(self):
-        return abs(self.getBusVoltage_V() * self.getCurrent_mA()) / 1000.0
+        return abs(self.getBusVoltage_V() * self.getCurrent_mA() / 1000.0)
     
     def __generate_current(self):
         # 150mA to 300mA
@@ -47,8 +47,11 @@ class INA219:
         d_time = time.time() - self.time
         self.time = time.time()
 
+        # time in hours
+        d_time = d_time / 3600.0
+
         # Calculate the amount of current consumed in mAh
-        consumed_current_mAh = (self.current_mA / 1000.0) * d_time
+        consumed_current_mAh = self.current_mA * d_time
         # Calculate the new battery voltage based on the consumed current
         self.voltage_V -= (consumed_current_mAh / self.battery_capacity_mAh) * (HIGH_VOLTAGE - LOW_VOLTAGE)
         # Ensure the voltage does not go below LOW_VOLTAGE

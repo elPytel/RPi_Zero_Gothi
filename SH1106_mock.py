@@ -7,16 +7,75 @@ SIZE_MULTIPLIER = 3  # Size multiplier for the mock display
 BACKGROUND_COLOR = "black"
 FOREGROUND_COLOR = "blue"
 
+class RaspberryPi:
+    def __init__(self,spi=None,spi_freq=None,rst = 27,dc = 25,bl = 18,bl_freq=1000,i2c=None):
+
+        self.GPIO_KEY_UP_PIN     = False
+        self.GPIO_KEY_DOWN_PIN   = False
+        self.GPIO_KEY_LEFT_PIN   = False
+        self.GPIO_KEY_RIGHT_PIN  = False
+        self.GPIO_KEY_PRESS_PIN  = False
+
+        self.GPIO_KEY1_PIN       = False
+        self.GPIO_KEY2_PIN       = False
+        self.GPIO_KEY3_PIN       = False
+
+    def key_press(self, event):
+        """Handle key press events."""
+        if event.keysym == "Up":
+            self.GPIO_KEY_UP_PIN = True
+        elif event.keysym == "Down":
+            self.GPIO_KEY_DOWN_PIN = True
+        elif event.keysym == "Left":
+            self.GPIO_KEY_LEFT_PIN = True
+        elif event.keysym == "Right":
+            self.GPIO_KEY_RIGHT_PIN = True
+        elif event.keysym == "Return":  # Enter key
+            self.GPIO_KEY_PRESS_PIN = True
+        elif event.keysym == "1":
+            self.GPIO_KEY1_PIN = True
+        elif event.keysym == "2":
+            self.GPIO_KEY2_PIN = True
+        elif event.keysym == "3":
+            self.GPIO_KEY3_PIN = True
+
+    def key_release(self, event):
+        """Handle key release events."""
+        if event.keysym == "Up":
+            self.GPIO_KEY_UP_PIN = False
+        elif event.keysym == "Down":
+            self.GPIO_KEY_DOWN_PIN = False
+        elif event.keysym == "Left":
+            self.GPIO_KEY_LEFT_PIN = False
+        elif event.keysym == "Right":
+            self.GPIO_KEY_RIGHT_PIN = False
+        elif event.keysym == "Return":  # Enter key
+            self.GPIO_KEY_PRESS_PIN = False
+        elif event.keysym == "1":
+            self.GPIO_KEY1_PIN = False
+        elif event.keysym == "2":
+            self.GPIO_KEY2_PIN = False
+        elif event.keysym == "3":
+            self.GPIO_KEY3_PIN = False
+    
+    def digital_read(self, pin):
+        return pin
+
 class SH1106(object):
     def __init__(self):
         self.width = LCD_WIDTH
         self.height = LCD_HEIGHT
+        self.RPI = RaspberryPi()
         self.window = tk.Tk()
         self.window.title("SH1106 Mock Display")
         self.canvas = tk.Canvas(self.window, width=self.width*SIZE_MULTIPLIER, height=self.height*SIZE_MULTIPLIER, bg="black")
         self.canvas.pack()
         self.tk_image = None
         self.clear()
+
+        # Bind key events to the window
+        self.window.bind("<KeyPress>", self.RPI.key_press)
+        self.window.bind("<KeyRelease>", self.RPI.key_release)
 
     def command(self, cmd):
         pass
@@ -59,5 +118,6 @@ class SH1106(object):
         #self.tk_image = ImageTk.PhotoImage(self.resized_image.convert("RGB").resize((self.width * SIZE_MULTIPLIER, self.height * SIZE_MULTIPLIER), Image.NEAREST))
         self.tk_image = ImageTk.PhotoImage(resized_image)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.tk_image)
+        self.window.update_idletasks()
         self.window.update()
 

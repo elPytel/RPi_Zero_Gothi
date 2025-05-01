@@ -42,7 +42,7 @@ draw = ImageDraw.Draw(image)
 try:
     while True:
         # with canvas(device) as draw:
-        if disp.RPI.digital_read(disp.RPI.GPIO_KEY_UP_PIN ) == 0: # button is released
+        if disp.RPI.digital_read(disp.RPI.GPIO_KEY_UP_PIN) == 0: # button is released
             draw.polygon([(20, 20), (30, 2), (40, 20)], outline=255, fill=0)  #Up
         else: # button is pressed:
             draw.polygon([(20, 20), (30, 2), (40, 20)], outline=255, fill=1)  #Up filled

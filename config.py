@@ -77,8 +77,6 @@ class RaspberryPi:
         self.GPIO_KEY2_PIN       = self.gpio_mode(KEY2_PIN,self.INPUT,True,None)
         self.GPIO_KEY3_PIN       = self.gpio_mode(KEY3_PIN,self.INPUT,True,None)
 
-
-
     def delay_ms(self,delaytime):
         time.sleep(delaytime / 1000.0)
 
