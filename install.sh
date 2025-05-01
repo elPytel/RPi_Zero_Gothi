@@ -1,7 +1,7 @@
 #!/bin/bash
 
 python_dependencies="requirements.txt"
-apt_dependencies="apt-dependencies.txt"
+apt_dependencies="dependencies.txt"
 
 # Install apt dependencies
 #sudo apt-get update

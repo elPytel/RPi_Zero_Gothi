@@ -52,8 +52,12 @@ class SH1106(object):
         """Update the tkinter window with the current image."""
         # convert from 1-bit to 8-bit Color
         # black background with light blue foreground
-
-        self.tk_image = ImageTk.PhotoImage(self.buffer.convert("RGB").resize((self.width * SIZE_MULTIPLIER, self.height * SIZE_MULTIPLIER), Image.NEAREST))
+        resized_image = self.buffer.resize((self.width * SIZE_MULTIPLIER, self.height * SIZE_MULTIPLIER), Image.NEAREST)
+        # invert BW
+        resized_image = resized_image.point(lambda x: 255 if x == 0 else 0, '1')
+        # convert to RGB and apply color
+        #self.tk_image = ImageTk.PhotoImage(self.resized_image.convert("RGB").resize((self.width * SIZE_MULTIPLIER, self.height * SIZE_MULTIPLIER), Image.NEAREST))
+        self.tk_image = ImageTk.PhotoImage(resized_image)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.tk_image)
         self.window.update()
 
