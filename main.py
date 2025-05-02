@@ -101,7 +101,9 @@ async def input_task(interval=0.01):
             button.update(raw_value)
 
             if button.was_just_pressed():
-                pass
+                if name == "KEY1":
+                    print("[Input] KEY1 pressed — Updating application...")
+                    update_application()
 
             if button.was_just_released():
                 print(f"[Input] {name} just released")

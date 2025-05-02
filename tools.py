@@ -1,4 +1,6 @@
+import sys
 import time
+import subprocess
 
 def is_raspberry_pi():
     try:
@@ -7,6 +9,17 @@ def is_raspberry_pi():
         return 'Raspberry Pi' in cpuinfo or 'BCM' in cpuinfo
     except FileNotFoundError:
         return False
+
+def update_application():
+    """Will run update.sh script."""
+    # výpis anglicky
+    print("🔄 Loading update script...")
+    try:
+        subprocess.Popen(["/bin/bash", "update.sh"])  # Spustí aktualizaci na pozadí
+        print("✅ Update script started successfully.")
+        sys.exit(0)
+    except Exception as e:
+        print(f"❌ Failed to start update script: {e}")
 
 def center_image(canvas, img):
     x = (canvas.width - img.width) // 2
