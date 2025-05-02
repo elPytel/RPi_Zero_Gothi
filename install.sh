@@ -35,8 +35,8 @@ After=network.target
 ExecStart=/usr/bin/python3 $(pwd)/main.py
 WorkingDirectory=$(pwd)
 Restart=on-failure
-StandardOutput=journal
-StandardError=journal
+StandardOutput=journal+console
+StandardError=journal+console
 User=$USER
 
 [Install]
