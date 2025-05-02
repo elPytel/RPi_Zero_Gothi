@@ -1,21 +1,14 @@
 import os
+import asyncio
 import time
-import traceback
 import numpy as np
 from basic_colors import *
-
+from tools import *
 from PIL import Image, ImageDraw, ImageFont
 
-def is_raspberry_pi():
-    try:
-        with open('/proc/cpuinfo', 'r') as f:
-            cpuinfo = f.read()
-        return 'Raspberry Pi' in cpuinfo or 'BCM' in cpuinfo
-    except FileNotFoundError:
-        return False
 
 DEBUG = False
-RPI=is_raspberry_pi()
+RPI = is_raspberry_pi()
 ASSETS = "assets"
 FONTS = "fonts"
 FONT = 'Font.ttf'
@@ -36,16 +29,85 @@ else:
     import SH1106_mock as SH1106
     from INA219_mock import *
 
-def sec_to_hhmmss(seconds: int) -> str:
-    """
-    Convert seconds to hh:mm:ss format.
-    """
-    hours = seconds // 3600
-    minutes = (seconds % 3600) // 60
-    seconds = seconds % 60
-    return f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
 
-if __name__=='__main__':    
+# ---------- ASYNCIO TASKS ------------
+async def battery_task(interval=1):
+    """Periodicky čte data z INA219 a aktualizuje displej"""
+    while True:
+        bus_voltage = ina219.getBusVoltage_V()
+        shunt_voltage = ina219.getShuntVoltage_mV() / 1000
+        current = ina219.getCurrent_mA()
+        power = ina219.getPower_W()
+        percent = ina219.getRemainingPercent()
+        remaining_time = ina219.getRemainingTime()
+
+        if DEBUG:
+            print(f"[Battery] PSU Voltage: {(bus_voltage + shunt_voltage):.3f} V")
+            print(f"[Battery] Current:     {current/1000:.3f} A")
+            print(f"[Battery] Power:       {power:.3f} W")
+            print(f"[Battery] Percent:     {percent:.1f}%")
+            print(f"[Battery] Time left:   {sec_to_hhmmss(remaining_time)}")
+
+        # --- Vykreslení na displej ---
+        image = Image.new('1', (disp.width, disp.height), "WHITE")
+        draw = ImageDraw.Draw(image)
+        texts = [
+            f"Time:    {sec_to_hhmmss(remaining_time)}",
+            f"Current: {current/1000:.3f} A",
+            f"Power:   {power:.3f} W",
+            f"Percent:  {percent:.1f}%",
+        ]
+        x_pos = 5
+        y_pos = 2
+        y_shift = 14
+        for text in texts:
+            draw.text((x_pos, y_pos), text, font=font10, fill=0)
+            y_pos += y_shift
+
+        disp.ShowImage(disp.getbuffer(image))
+
+        await asyncio.sleep(interval)
+
+async def input_task(interval=0.01):
+    """Periodicky čte tlačítka"""
+    while True:
+        keys = {
+            "UP": disp.RPI.digital_read(disp.RPI.GPIO_KEY_UP_PIN),
+            "DOWN": disp.RPI.digital_read(disp.RPI.GPIO_KEY_DOWN_PIN),
+            "LEFT": disp.RPI.digital_read(disp.RPI.GPIO_KEY_LEFT_PIN),
+            "RIGHT": disp.RPI.digital_read(disp.RPI.GPIO_KEY_RIGHT_PIN),
+            "ENTER": disp.RPI.digital_read(disp.RPI.GPIO_KEY_PRESS_PIN),
+            "KEY1": disp.RPI.digital_read(disp.RPI.GPIO_KEY1_PIN),
+            "KEY2": disp.RPI.digital_read(disp.RPI.GPIO_KEY2_PIN),
+            "KEY3": disp.RPI.digital_read(disp.RPI.GPIO_KEY3_PIN),
+        }
+        for name, pressed in keys.items():
+            if pressed:
+                print(f"[Input] Key {name} pressed")
+        if not RPI:
+            disp.window.update_idletasks()
+        await asyncio.sleep(interval)
+
+async def splash_screen(duration=1):
+    """Zobrazí úvodní obrázek na začátku"""
+    image = Image.new('1', (disp.width, disp.height), "WHITE")
+    # Cesta k ikoně
+    img_path = os.path.join(ASSETS, 'icons', 'Settings', 'LoadingHourglass_24x24.png')
+    img = Image.open(img_path)
+    x, y = center_image(image, img)
+    image.paste(img, (x, y))
+    disp.ShowImage(disp.getbuffer(image))
+    await asyncio.sleep(duration)
+
+async def main():
+    await splash_screen()
+    await asyncio.gather(
+        battery_task(),
+        input_task(),
+    )
+
+# ---------- MAIN LOOP ------------
+if __name__=='__main__': 
     try:
         ina219 = INA219(addr=0x43)
         print_success("Initialized: battery driver - INA219")
@@ -65,134 +127,11 @@ if __name__=='__main__':
 
     # Initialize library.
     disp.Init()
-    disp.clear()
+    disp.clear()  
 
-    # Create blank image for drawing.
-    image = Image.new('1', (disp.width, disp.height), "WHITE")  # Bílý podklad
-    draw = ImageDraw.Draw(image)
-
-    # Načtení obrázku
-    img_path = os.path.join(ASSETS, 'icons', 'Settings', 'LoadingHourglass_24x24.png')
-    img = Image.open(img_path)
-    
-    # Vložení obrázku do bufferu
-    def center_image(canvas, img):
-        # Vypočítání pozice pro centrování obrázku
-        x = (canvas.width - img.width) // 2
-        y = (canvas.height - img.height) // 2
-        return x, y
-
-    x, y = center_image(image, img)
-    image.paste(img, (x, y))
-    disp.ShowImage(disp.getbuffer(image))
-    time.sleep(1)
-
-    class Timer:
-        def __init__(self, sleep_time=1):
-            self.start_time = time.time()
-            self.sleep_time = sleep_time
-            self.sleep_until = self.start_time + sleep_time
-
-        def elapsed(self):
-            return time.time() - self.start_time
-        
-        def reset(self):
-            self.start_time = time.time()
-            self.sleep_until = self.start_time + self.sleep_time
-
-        def sleep(self, seconds):
-            self.sleep_until = time.time() + seconds
-            self.sleep_time = seconds
-        
-        def done(self):
-            if time.time() >= self.sleep_until:
-                self.reset()
-                return True
-            return False
-    
-    
-    sleep_1s = Timer(1)
-    sleep_100ms = Timer(0.01)
-
-    while True:
-        if sleep_1s.done():
-            bus_voltage = ina219.getBusVoltage_V()             # voltage on V- (load side)
-            shunt_voltage = ina219.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
-            current = ina219.getCurrent_mA()                   # current in mA
-            power = ina219.getPower_W()                        # power in W
-            percent = ina219.getRemainingPercent()
-            remaining_time = ina219.getRemainingTime()
-
-            # INA219 measure bus voltage on the load side. So PSU voltage = bus_voltage + shunt_voltage
-            if DEBUG:
-                print("PSU Voltage:   {:6.3f} V".format(bus_voltage + shunt_voltage))
-                print("Shunt Voltage: {:9.6f} V".format(shunt_voltage))
-                print("Load Voltage:  {:6.3f} V".format(bus_voltage))
-                print("Current:       {:6.3f} A".format(current/1000))
-                print("Power:         {:6.3f} W".format(power))
-                print("Percent:       {:3.1f}%".format(percent))
-                print("")
-            
-            if current > 0:
-                # charging
-                print_info("Charging")
-
-            texts = []
-            #text = f"Voltage: {bus_voltage:6.3f} V"
-            text = f"Time:    {sec_to_hhmmss(remaining_time)}"
-            texts.append(text)
-            text = f"Current: {current/1000:6.3f} A"
-            texts.append(text)
-            text = f"Power:   {power:6.3f} W"
-            texts.append(text)
-            text = f"Percent:  {percent:3.1f}%"
-            texts.append(text)
-
-            # clear the image
-            image = Image.new('1', (disp.width, disp.height), "WHITE")
-            draw = ImageDraw.Draw(image)
-            x_pos = 5
-            y_pos = 2
-            x_shift = 0
-            y_shift = 14
-            for text in texts:
-                draw.text((x_pos, y_pos), text, font = font10, fill = 0)
-                x_pos += x_shift
-                y_pos += y_shift
-            disp.ShowImage(disp.getbuffer(image))
-
-        if sleep_100ms.done():
-            # Kontrola stisknutí kláves
-            if not RPI:
-                disp.window.update_idletasks()
-            if disp.RPI.digital_read(disp.RPI.GPIO_KEY_UP_PIN):
-                print("Key UP pressed")
-            if disp.RPI.digital_read(disp.RPI.GPIO_KEY_DOWN_PIN):
-                print("Key DOWN pressed")
-            if disp.RPI.digital_read(disp.RPI.GPIO_KEY_LEFT_PIN):
-                print("Key LEFT pressed")
-            if disp.RPI.digital_read(disp.RPI.GPIO_KEY_RIGHT_PIN):
-                print("Key RIGHT pressed")
-            if disp.RPI.digital_read(disp.RPI.GPIO_KEY_PRESS_PIN):
-                print("Key ENTER pressed")
-            if disp.RPI.digital_read(disp.RPI.GPIO_KEY1_PIN):
-                print("Key 1 pressed")
-            if disp.RPI.digital_read(disp.RPI.GPIO_KEY2_PIN):
-                print("Key 2 pressed")
-            if disp.RPI.digital_read(disp.RPI.GPIO_KEY3_PIN):
-                print("Key 3 pressed")
-
-        time.sleep(0.001)
-    
-    """
-    draw.line([(0,0),(127,0)], fill = 0)
-    draw.line([(0,0),(0,63)], fill = 0)
-    draw.line([(0,63),(127,63)], fill = 0)
-    draw.line([(127,0),(127,63)], fill = 0)
-    disp.ShowImage(disp.getbuffer(image1))
-
-    except KeyboardInterrupt:    
-        print("ctrl + c:")
+    # Spustíme asyncio loop
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print_info("KeyboardInterrupt — Cleaning up")
         disp.RPI.module_exit()
-        exit()
-    """
