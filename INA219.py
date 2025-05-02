@@ -223,7 +223,9 @@ class INA219:
         remaining_capacity = self.getRemainingPercent() * self.capacity_mAh / 100
         
         # Calculate the remaining time in seconds
-        if current > 0: # charging
+        if current == 0: # no current
+            return -1
+        elif current > 0: # charging
             remaining_time = (100-remaining_capacity / current) * 3600
             return int(remaining_time)
         else: # discharging
