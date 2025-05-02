@@ -7,6 +7,7 @@ from tools import *
 from Button import Button
 from PIL import Image, ImageDraw, ImageFont
 
+from SlideShow import SlideShow
 
 DEBUG = False
 RPI = is_raspberry_pi()
@@ -104,16 +105,23 @@ async def input_task(interval=0.01):
         
         await asyncio.sleep(interval)
 
-async def splash_screen(duration=1):
+async def splash_screen(duration=5):
     """Zobrazí úvodní obrázek na začátku"""
-    image = Image.new('1', (disp.width, disp.height), "WHITE")
-    # Cesta k ikoně
-    img_path = os.path.join(ASSETS, 'icons', 'Settings', 'LoadingHourglass_24x24.png')
-    img = Image.open(img_path)
-    x, y = center_image(image, img)
-    image.paste(img, (x, y))
-    disp.ShowImage(disp.getbuffer(image))
-    await asyncio.sleep(duration)
+    # Loading slide show
+    path = os.path.join(ASSETS, 'icons', 'Common', 'Loading_24')
+    slides = SlideShow()
+    slides.init_from_path(path)
+    
+    # create animation
+    time_stemp = time.time()
+    while time_stemp + duration > time.time():
+        frame = slides.next_frame()
+        image = Image.new('1', (disp.width, disp.height), "WHITE")
+        x, y = center_image(image, frame)
+        image.paste(frame, (x, y))
+        disp.ShowImage(disp.getbuffer(image))
+        await asyncio.sleep(1 / slides.frame_rate)
+    #await asyncio.sleep(duration)
 
 async def main():
     await splash_screen()
