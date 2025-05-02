@@ -2,6 +2,7 @@ import os
 import asyncio
 import time
 import numpy as np
+import argparse
 from basic_colors import *
 from tools import *
 from Button import Button
@@ -132,6 +133,20 @@ async def main():
 
 # ---------- MAIN LOOP ------------
 if __name__=='__main__': 
+    set_verbose(False)
+    # parse arguments
+    parser = argparse.ArgumentParser(description="Zero-Gothi main application")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose mode.")
+    parser.add_argument("-D", "--debug", action="store_true", help="Debug mode.")
+    args = parser.parse_args()
+    
+    if args.verbose:
+        VERBOSE = True
+        set_verbose(True)
+    
+    if args.debug:
+        DEBUG = True
+
     try:
         ina219 = INA219(addr=0x43)
         print_success("Initialized: battery driver - INA219")
