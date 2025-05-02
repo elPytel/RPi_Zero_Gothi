@@ -49,6 +49,10 @@ class RaspberryPi():
         for key, (p, state) in self.pins.items():
             if p == pin:
                 return state
+        
+    def module_exit(self):
+        """Mock exit function."""
+        print("Exiting mock RPi...")
 
 class SH1106(object):
     def __init__(self):

@@ -44,19 +44,24 @@ async def battery_task(interval=1):
         percent = ina219.getRemainingPercent()
         remaining_time = ina219.getRemainingTime()
 
+        if remaining_time < 0:
+            time_string = "infinite"
+        else:
+            time_string = sec_to_hhmmss(remaining_time)
+
         if DEBUG:
             print(f"[Battery] PSU Voltage: {(bus_voltage + shunt_voltage):.3f} V")
             print(f"[Battery] Current:     {current/1000:.3f} A")
             print(f"[Battery] Power:       {power:.3f} W")
             print(f"[Battery] Percent:     {percent:.1f}%")
-            print(f"[Battery] Time left:   {sec_to_hhmmss(remaining_time)}")
+            print(f"[Battery] Time left:   {time_string}")
             print()
 
         # --- Vykreslení na displej ---
         image = Image.new('1', (disp.width, disp.height), "WHITE")
         draw = ImageDraw.Draw(image)
         texts = [
-            f"Time:    {sec_to_hhmmss(remaining_time)}",
+            f"Time:    {time_string}",
             f"Current: {current/1000:.3f} A",
             f"Power:   {power:.3f} W",
             f"Percent:  {percent:.1f}%",
@@ -106,26 +111,66 @@ async def input_task(interval=0.01):
         
         await asyncio.sleep(interval)
 
-async def splash_screen(duration=5):
+async def splash_screen(duration=0):
     """Zobrazí úvodní obrázek na začátku"""
     # Loading slide show
     path = os.path.join(ASSETS, 'icons', 'Common', 'Loading_24')
     slides = SlideShow()
     slides.init_from_path(path)
+
+    def loading():
+        """Funkce pro načítání obrázků"""
+        if duration > 0:
+            return time.time() < time_stemp + duration
+        return True
     
     # create animation
     time_stemp = time.time()
-    while time_stemp + duration > time.time():
+    while loading():
         frame = slides.next_frame()
         image = Image.new('1', (disp.width, disp.height), "WHITE")
         x, y = center_image(image, frame)
         image.paste(frame, (x, y))
         disp.ShowImage(disp.getbuffer(image))
         await asyncio.sleep(1 / slides.frame_rate)
-    #await asyncio.sleep(duration)
+
+async def init():
+    global disp, ina219, font20, font10
+    try:
+        disp = SH1106.SH1106()
+        print_success("Initialized: display driver - SH1106")
+        # Initialize library.
+        disp.Init()
+        disp.clear()  
+
+        print_info("Loading splash screen...")
+        load_screen = asyncio.create_task(splash_screen(0))
+
+        ina219 = INA219(addr=0x43)
+        print_success("Initialized: battery driver - INA219")
+        
+        # join path to assets
+        font_path = os.path.join(ASSETS, FONTS, FONT)
+        if not os.path.exists(font_path):
+            print_error(f"Font file {font_path} not found.")
+        
+        font20 = ImageFont.truetype(font_path, 20)
+        font10 = ImageFont.truetype(font_path, 13) 
+        font10 = ImageFont.truetype(os.path.join(ASSETS, FONTS, 'Doto-Black.ttf'), 10) 
+        print_success("Loaded fonts.")
+        await asyncio.sleep(4)
+    except IOError as e:
+        print_error(str(e))
+    finally:
+        load_screen.cancel()
+        try:
+            await load_screen
+        except asyncio.CancelledError:
+            verbose_print("Task has been successfully cancelled.")
+
 
 async def main():
-    await splash_screen()
+    await init()
     await asyncio.gather(
         battery_task(),
         input_task(),
@@ -146,27 +191,6 @@ if __name__=='__main__':
     
     if args.debug:
         DEBUG = True
-
-    try:
-        ina219 = INA219(addr=0x43)
-        print_success("Initialized: battery driver - INA219")
-        disp = SH1106.SH1106()
-        print_success("Initialized: display driver - SH1106")
-        
-        # join path to assets
-        font_path = os.path.join(ASSETS, FONTS, FONT)
-        if not os.path.exists(font_path):
-            print_error(f"Font file {font_path} not found.")
-        font20 = ImageFont.truetype(font_path, 20)
-        font10 = ImageFont.truetype(font_path, 13) 
-        font10 = ImageFont.truetype(os.path.join(ASSETS, FONTS, 'Doto-Black.ttf'), 10) 
-        print_success("Loaded fonts.")
-    except IOError as e:
-        print_error(str(e))
-
-    # Initialize library.
-    disp.Init()
-    disp.clear()  
 
     # Spustíme asyncio loop
     try:

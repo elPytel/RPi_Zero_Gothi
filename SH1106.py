@@ -98,12 +98,6 @@ class SH1106(object):
                     if pixels[x, y] == 0:
                         buf[(newx + (newy // 8 )*self.width) ] &= ~(1 << (y % 8))
         return buf
-    
-    # def ShowImage(self,Image):
-        # self.SetWindows()
-        # GPIO.output(self._dc, GPIO.HIGH);
-        # for i in range(0,self.width * self.height/8):
-            # config.spi_writebyte([~Image[i]])
             
     def ShowImage(self, pBuf):
         for page in range(0,8):
@@ -127,4 +121,3 @@ class SH1106(object):
         """Clear contents of image buffer"""
         _buffer = [0xff]*(self.width * self.height//8)
         self.ShowImage(_buffer) 
-            #print "%d",_buffer[i:i+4096]
