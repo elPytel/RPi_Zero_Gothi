@@ -1,3 +1,4 @@
+from enum import Enum, auto
 import tkinter as tk
 from PIL import Image, ImageTk
 
@@ -7,59 +8,47 @@ SIZE_MULTIPLIER = 3  # Size multiplier for the mock display
 BACKGROUND_COLOR = "black"
 FOREGROUND_COLOR = "blue"
 
-class RaspberryPi:
+class RaspberryPi():
+    GPIO_KEY_UP_PIN = 1
+    GPIO_KEY_DOWN_PIN = 2
+    GPIO_KEY_LEFT_PIN = 3
+    GPIO_KEY_RIGHT_PIN = 4
+    GPIO_KEY_PRESS_PIN = 5
+    GPIO_KEY1_PIN = 6
+    GPIO_KEY2_PIN = 7
+    GPIO_KEY3_PIN = 8
+
     def __init__(self,spi=None,spi_freq=None,rst = 27,dc = 25,bl = 18,bl_freq=1000,i2c=None):
-
-        self.GPIO_KEY_UP_PIN     = False
-        self.GPIO_KEY_DOWN_PIN   = False
-        self.GPIO_KEY_LEFT_PIN   = False
-        self.GPIO_KEY_RIGHT_PIN  = False
-        self.GPIO_KEY_PRESS_PIN  = False
-
-        self.GPIO_KEY1_PIN       = False
-        self.GPIO_KEY2_PIN       = False
-        self.GPIO_KEY3_PIN       = False
+        self.pins = {
+            "Up": (RaspberryPi.GPIO_KEY_UP_PIN, False),
+            "Down": (RaspberryPi.GPIO_KEY_DOWN_PIN, False),
+            "Left": (RaspberryPi.GPIO_KEY_LEFT_PIN, False),
+            "Right": (RaspberryPi.GPIO_KEY_RIGHT_PIN, False),
+            "Return": (RaspberryPi.GPIO_KEY_PRESS_PIN, False),
+            "1": (RaspberryPi.GPIO_KEY1_PIN, False),
+            "2": (RaspberryPi.GPIO_KEY2_PIN, False),
+            "3": (RaspberryPi.GPIO_KEY3_PIN, False),
+        }
 
     def key_press(self, event):
         """Handle key press events."""
-        if event.keysym == "Up":
-            self.GPIO_KEY_UP_PIN = True
-        elif event.keysym == "Down":
-            self.GPIO_KEY_DOWN_PIN = True
-        elif event.keysym == "Left":
-            self.GPIO_KEY_LEFT_PIN = True
-        elif event.keysym == "Right":
-            self.GPIO_KEY_RIGHT_PIN = True
-        elif event.keysym == "Return":  # Enter key
-            self.GPIO_KEY_PRESS_PIN = True
-        elif event.keysym == "1":
-            self.GPIO_KEY1_PIN = True
-        elif event.keysym == "2":
-            self.GPIO_KEY2_PIN = True
-        elif event.keysym == "3":
-            self.GPIO_KEY3_PIN = True
+        for key, (pin, state) in self.pins.items():
+            if event.keysym == key:
+                self.pins[key] = (pin, True)
+                break
 
     def key_release(self, event):
         """Handle key release events."""
-        if event.keysym == "Up":
-            self.GPIO_KEY_UP_PIN = False
-        elif event.keysym == "Down":
-            self.GPIO_KEY_DOWN_PIN = False
-        elif event.keysym == "Left":
-            self.GPIO_KEY_LEFT_PIN = False
-        elif event.keysym == "Right":
-            self.GPIO_KEY_RIGHT_PIN = False
-        elif event.keysym == "Return":  # Enter key
-            self.GPIO_KEY_PRESS_PIN = False
-        elif event.keysym == "1":
-            self.GPIO_KEY1_PIN = False
-        elif event.keysym == "2":
-            self.GPIO_KEY2_PIN = False
-        elif event.keysym == "3":
-            self.GPIO_KEY3_PIN = False
+        for key, (pin, state) in self.pins.items():
+            if event.keysym == key:
+                self.pins[key] = (pin, False)
+                break
     
     def digital_read(self, pin):
-        return pin
+        """Mock digital read function."""
+        for key, (p, state) in self.pins.items():
+            if p == pin:
+                return state
 
 class SH1106(object):
     def __init__(self):

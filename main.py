@@ -4,6 +4,7 @@ import time
 import numpy as np
 from basic_colors import *
 from tools import *
+from Button import Button
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -47,6 +48,7 @@ async def battery_task(interval=1):
             print(f"[Battery] Power:       {power:.3f} W")
             print(f"[Battery] Percent:     {percent:.1f}%")
             print(f"[Battery] Time left:   {sec_to_hhmmss(remaining_time)}")
+            print()
 
         # --- Vykreslení na displej ---
         image = Image.new('1', (disp.width, disp.height), "WHITE")
@@ -70,22 +72,36 @@ async def battery_task(interval=1):
 
 async def input_task(interval=0.01):
     """Periodicky čte tlačítka"""
-    while True:
-        keys = {
-            "UP": disp.RPI.digital_read(disp.RPI.GPIO_KEY_UP_PIN),
-            "DOWN": disp.RPI.digital_read(disp.RPI.GPIO_KEY_DOWN_PIN),
-            "LEFT": disp.RPI.digital_read(disp.RPI.GPIO_KEY_LEFT_PIN),
-            "RIGHT": disp.RPI.digital_read(disp.RPI.GPIO_KEY_RIGHT_PIN),
-            "ENTER": disp.RPI.digital_read(disp.RPI.GPIO_KEY_PRESS_PIN),
-            "KEY1": disp.RPI.digital_read(disp.RPI.GPIO_KEY1_PIN),
-            "KEY2": disp.RPI.digital_read(disp.RPI.GPIO_KEY2_PIN),
-            "KEY3": disp.RPI.digital_read(disp.RPI.GPIO_KEY3_PIN),
+    buttons = {
+            "UP": (Button(), disp.RPI.GPIO_KEY_UP_PIN),
+            "DOWN": (Button(), disp.RPI.GPIO_KEY_DOWN_PIN),
+            "LEFT": (Button(), disp.RPI.GPIO_KEY_LEFT_PIN),
+            "RIGHT": (Button(), disp.RPI.GPIO_KEY_RIGHT_PIN),
+            "ENTER": (Button(), disp.RPI.GPIO_KEY_PRESS_PIN),
+            "KEY1": (Button(), disp.RPI.GPIO_KEY1_PIN),
+            "KEY2": (Button(), disp.RPI.GPIO_KEY2_PIN),
+            "KEY3": (Button(), disp.RPI.GPIO_KEY3_PIN),
         }
-        for name, pressed in keys.items():
-            if pressed:
-                print(f"[Input] Key {name} pressed")
-        if not RPI:
+    
+    while True:
+        if not RPI: # Mock mode
+            # Simulate button presses for testing
             disp.window.update_idletasks()
+
+        for name, (button, pin) in buttons.items():
+            # Read the button state
+            raw_value = disp.RPI.digital_read(pin)  # 0 = pressed, 1 = released
+            button.update(raw_value)
+
+            if button.was_just_pressed():
+                pass
+
+            if button.was_just_released():
+                print(f"[Input] {name} just released")
+
+            if button.is_pressed():
+                pass
+        
         await asyncio.sleep(interval)
 
 async def splash_screen(duration=1):
