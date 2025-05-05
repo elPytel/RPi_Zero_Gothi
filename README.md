@@ -8,11 +8,6 @@ I am using a Raspberry Pi Zero WH with a Waveshare UPS HAT and a 1.3inch OLED HA
 
 ### RPi Zero WH
 
-```bash
-python3 -m pip config set global.break-system-packages true
-```
-To disable the system packages check in pip, run the above command. 
-
 
 ### UPS HAT
 
@@ -27,6 +22,13 @@ To disable the system packages check in pip, run the above command.
 [waveshare.com/wiki](https://www.waveshare.com/wiki/1.3inch_OLED_HAT)
 
 ## Installation
+
+To disable the system packages check in pip, run the this command: 
+```bash
+python3 -m pip config set global.break-system-packages true
+```
+
+
 To run shutdown command without password, you need to edit the sudoers file.
 
 ```bash

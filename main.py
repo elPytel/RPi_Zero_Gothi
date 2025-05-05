@@ -190,8 +190,8 @@ async def main():
     except SystemExit:
         print("[Main] SystemExit caught — Cleaning up tasks...")
         tasks = asyncio.all_tasks()
-        current_task = asyncio.current_task()  # Získejte aktuální úlohu
-        tasks.remove(current_task)  # Odstraňte aktuální úlohu ze seznamu
+        current_task = asyncio.current_task()
+        tasks.remove(current_task)
         for task in tasks:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
