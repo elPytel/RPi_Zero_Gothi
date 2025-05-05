@@ -12,12 +12,11 @@ def is_raspberry_pi():
 
 def update_application():
     """Will run update.sh script."""
-    # výpis anglicky
     print("🔄 Loading update script...")
     try:
         subprocess.Popen(["/bin/bash", "update.sh", "-r"])
         print("✅ Update script started successfully.")
-        sys.exit(0)
+        raise SystemExit(0)
     except Exception as e:
         print(f"❌ Failed to start update script: {e}")
     
@@ -27,6 +26,7 @@ def shutdown_system():
     try:
         subprocess.Popen(["sudo", "shutdown", "-h", "now"])
         print("🛑 Power off command sent.")
+        raise SystemExit(0)
     except Exception as e:
         print(f"❌ Failed to send power off command: {e}")
 

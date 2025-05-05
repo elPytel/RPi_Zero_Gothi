@@ -25,7 +25,7 @@ else
 fi
 
 # --- Create or update systemd service ---
-echo "🛠️  Setting up systemd service: $SERVICE_NAME"
+echo "🛠️ Setting up systemd service: $SERVICE_NAME"
 
 SERVICE_CONTENT="[Unit]
 Description=Raspberry Pi Gotchi Application

@@ -34,6 +34,42 @@ else:
 
 
 # ---------- ASYNCIO TASKS ------------
+
+async def init():
+    global disp, ina219, font20, font10
+    try:
+        disp = SH1106.SH1106()
+        print_success("Initialized: display driver - SH1106")
+        # Initialize library.
+        disp.Init()
+        disp.clear()  
+
+        print_info("Loading splash screen...")
+        load_screen = asyncio.create_task(splash_screen(0))
+
+        ina219 = INA219(addr=0x43)
+        print_success("Initialized: battery driver - INA219")
+        
+        # join path to assets
+        font_path = os.path.join(ASSETS, FONTS, FONT)
+        if not os.path.exists(font_path):
+            print_error(f"Font file {font_path} not found.")
+        
+        font20 = ImageFont.truetype(font_path, 20)
+        font10 = ImageFont.truetype(font_path, 13) 
+        font10 = ImageFont.truetype(os.path.join(ASSETS, FONTS, 'Doto-Black.ttf'), 10) 
+        print_success("Loaded fonts.")
+        await asyncio.sleep(4)
+    except IOError as e:
+        print_error(str(e))
+    finally:
+        load_screen.cancel()
+        try:
+            await load_screen
+        except asyncio.CancelledError:
+            verbose_print("Task has been successfully cancelled.")
+
+
 async def battery_task(interval=1):
     """Periodicky čte data z INA219 a aktualizuje displej"""
     while True:
@@ -105,6 +141,8 @@ async def input_task(interval=0.01):
                     print("[Input] KEY1 pressed — Updating application...")
                     if RPI:
                         update_application()
+                    else:
+                        raise SystemExit(0)
                 elif name == "KEY2":
                     print("[Input] KEY2 pressed — Vypínám RPi!")
                     if RPI:
@@ -142,47 +180,22 @@ async def splash_screen(duration=0):
         disp.ShowImage(disp.getbuffer(image))
         await asyncio.sleep(1 / slides.frame_rate)
 
-async def init():
-    global disp, ina219, font20, font10
-    try:
-        disp = SH1106.SH1106()
-        print_success("Initialized: display driver - SH1106")
-        # Initialize library.
-        disp.Init()
-        disp.clear()  
-
-        print_info("Loading splash screen...")
-        load_screen = asyncio.create_task(splash_screen(0))
-
-        ina219 = INA219(addr=0x43)
-        print_success("Initialized: battery driver - INA219")
-        
-        # join path to assets
-        font_path = os.path.join(ASSETS, FONTS, FONT)
-        if not os.path.exists(font_path):
-            print_error(f"Font file {font_path} not found.")
-        
-        font20 = ImageFont.truetype(font_path, 20)
-        font10 = ImageFont.truetype(font_path, 13) 
-        font10 = ImageFont.truetype(os.path.join(ASSETS, FONTS, 'Doto-Black.ttf'), 10) 
-        print_success("Loaded fonts.")
-        await asyncio.sleep(4)
-    except IOError as e:
-        print_error(str(e))
-    finally:
-        load_screen.cancel()
-        try:
-            await load_screen
-        except asyncio.CancelledError:
-            verbose_print("Task has been successfully cancelled.")
-
-
 async def main():
-    await init()
-    await asyncio.gather(
-        battery_task(),
-        input_task(),
-    )
+    try:
+        await init()
+        await asyncio.gather(
+            battery_task(),
+            input_task(),
+        )
+    except SystemExit:
+        print("[Main] SystemExit caught — Cleaning up tasks...")
+        tasks = asyncio.all_tasks()
+        current_task = asyncio.current_task()  # Získejte aktuální úlohu
+        tasks.remove(current_task)  # Odstraňte aktuální úlohu ze seznamu
+        for task in tasks:
+            task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+        print("[Main] All tasks cancelled. Exiting program.")
 
 # ---------- MAIN LOOP ------------
 if __name__=='__main__': 
@@ -205,4 +218,6 @@ if __name__=='__main__':
         asyncio.run(main())
     except KeyboardInterrupt:
         print_info("KeyboardInterrupt — Cleaning up")
+    finally:
         disp.RPI.module_exit()
+        print_success("Exiting program.")
