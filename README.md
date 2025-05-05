@@ -26,6 +26,19 @@ To disable the system packages check in pip, run the above command.
 
 [waveshare.com/wiki](https://www.waveshare.com/wiki/1.3inch_OLED_HAT)
 
+## Installation
+To run shutdown command without password, you need to edit the sudoers file.
+
+```bash
+sudo visudo
+```
+
+For user `pi` add the following line to the end of the file:
+
+```bash
+pi ALL=NOPASSWD: /sbin/poweroff, /sbin/shutdown
+```
+
 ## Assets
 
 ### Art

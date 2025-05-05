@@ -103,7 +103,13 @@ async def input_task(interval=0.01):
             if button.was_just_pressed():
                 if name == "KEY1":
                     print("[Input] KEY1 pressed — Updating application...")
-                    update_application()
+                    if RPI:
+                        update_application()
+                elif name == "KEY2":
+                    print("[Input] KEY2 pressed — Vypínám RPi!")
+                    if RPI:
+                        shutdown_system()
+                    return
 
             if button.was_just_released():
                 print(f"[Input] {name} just released")

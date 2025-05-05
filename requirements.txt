@@ -1,4 +1,4 @@
 pytest
-argparse
 Pillow
+argparse
 basic-colors
