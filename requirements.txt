@@ -1,4 +1,5 @@
 pytest
+cython
 numpy
 matplotlib
 Pillow

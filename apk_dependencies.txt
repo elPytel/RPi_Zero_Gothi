@@ -1,0 +1,7 @@
+build-base 
+pkgconf
+python3-dev 
+py3-pip
+py3-numpy
+py3-matplotlib
+python3-tkintery

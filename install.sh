@@ -4,16 +4,39 @@
 SERVICE_NAME="rpi_gotchi.service"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 python_dependencies="requirements.txt"
-apt_dependencies="dependencies.txt"
+apt_dependencies="apt_dependencies.txt"
+apk_dependencies="apk_dependencies.txt"
 
 echo "🔧 Starting installation..."
 
-# --- Install apt dependencies ---
-if [ -f "$apt_dependencies" ]; then
-    echo "📦 Installing APT dependencies from $apt_dependencies..."
-    xargs sudo apt-get -y install < "$apt_dependencies"
+install_apt_deps() {
+    if [ -f "$apt_dependencies" ]; then
+        echo "📦 Installing APT dependencies from $apt_dependencies..."
+        xargs sudo apt-get -y install < "$apt_dependencies"
+    else
+        echo "ℹ️ No $apt_dependencies found. Skipping APT install."
+    fi
+}
+
+install_apk_deps() {
+    if [ -f "$apk_dependencies" ]; then
+        echo "📦 Installing APK dependencies from $apk_dependencies..."
+        xargs sudo apk add < "$apk_dependencies"
+    else
+        echo "ℹ️ No $apk_dependencies found. Skipping APK install."
+    fi
+}
+
+# --- Detect package manager and install dependencies ---
+if command -v apt-get >/dev/null 2>&1; then
+    echo "🟢 Detected apt-get package manager."
+    install_apt_deps
+elif command -v apk >/dev/null 2>&1; then
+    echo "🟢 Detected apk package manager."
+    install_apk_deps
 else
-    echo "ℹ️  No $apt_dependencies found. Skipping APT install."
+    echo "❌ No supported package manager found (apt-get or apk)."
+    exit 1
 fi
 
 # --- Install python dependencies ---
@@ -21,7 +44,7 @@ if [ -f "$python_dependencies" ]; then
     echo "🐍 Installing Python dependencies from $python_dependencies..."
     pip install -r "$python_dependencies"
 else
-    echo "ℹ️  No $python_dependencies found. Skipping Python install."
+    echo "ℹ️ No $python_dependencies found. Skipping Python install."
 fi
 
 # --- Create or update systemd service ---
@@ -52,7 +75,7 @@ sudo systemctl daemon-reload
 echo "✅ Service file created/updated at $SERVICE_PATH"
 
 # Optional: enable service to auto-start on boot
-echo "⚙️  Enabling service to start on boot..."
+echo "⚙️ Enabling service to start on boot..."
 sudo systemctl enable "$SERVICE_NAME"
 
 echo "🎉 Done! You can control your service with:"
