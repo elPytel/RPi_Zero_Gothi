@@ -2,20 +2,35 @@
 
 ![loading](./documentation/images/loading.png)
 
+> [!warning]
+> This project is in early development stage. It is not ready for production use. Use at your own risk.
+
 ## Hardware
 
-I am using a Raspberry Pi Zero WH with a Waveshare UPS HAT and a 1.3inch OLED HAT. I have used demo code from the Waveshare website for OLED HAT and UPS HAT in this project.
+HW which can natively run this application:
+- [N900](https://en.wikipedia.org/wiki/Nokia_N900)
+- [Raspberry Pi Zero WH](https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/)
+
+### N900
+
+> [!note]
+> The N900 is a Linux-based pre-smartphone that can run a variety of applications. The N900 has a 0.6 GHz ARM Cortex-A8 processor and 256MB of RAM. It has a 5MP camera and a 32GB internal storage. It has a 3.5 inch screen with a resolution of 800x480 pixels.
+
+You can use Nokia N900 with Postmarket OS and Python 3.
+As it is phone with a keyboard, battery, touchscreen and a stylus, it is a perfect device for this project. 
+SD card is used for storage (up to 400GB). 
 
 ### RPi Zero WH
 
+I am using a Raspberry Pi Zero WH with a Waveshare UPS HAT and a 1.3inch OLED HAT. I have used demo code from the Waveshare website for OLED HAT and UPS HAT in this project.
 
-### UPS HAT
+#### UPS HAT
 
 ![350](https://www.waveshare.com/w/upload/thumb/0/0d/UPS-HAT-C-1.jpg/800px-UPS-HAT-C-1.jpg)
 
 [waveshare.com/wiki](https://www.waveshare.com/wiki/UPS_HAT_(C))
 
-### 1.3inch OLED HAT
+#### 1.3inch OLED HAT
 
 ![350](https://www.waveshare.com/w/upload/thumb/e/e3/1.3inch-OLED-HAT-1.jpg/600px-1.3inch-OLED-HAT-1.jpg)
 
@@ -24,7 +39,7 @@ I am using a Raspberry Pi Zero WH with a Waveshare UPS HAT and a 1.3inch OLED HA
 ## Installation
 
 ### Prerequisites
-- Raspberry Pi OS Lite
+- Raspberry Pi OS Lite / N900 - Postmarket OS
 - Python 3.7 or higher
 - Python 3 pip
 
