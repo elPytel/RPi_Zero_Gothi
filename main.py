@@ -28,7 +28,7 @@ if PLATFORM == Platform.RPI_ZERO:
     import platforms.RPi.SH1106 as SH1106
     from platforms.RPi.INA219 import *
 elif PLATFORM == Platform.N900:
-    from platforms.N900.battery import Battery as Battery
+    from platforms.N900.battery import Nokia_battery as Battery
     import platforms.PC.SH1106_mock as SH1106
 elif PLATFORM == Platform.OTHER:
     import platforms.PC.SH1106_mock as SH1106
@@ -67,11 +67,12 @@ async def init():
     except IOError as e:
         print_error(str(e))
     finally:
-        load_screen.cancel()
-        try:
-            await load_screen
-        except asyncio.CancelledError:
-            verbose_print("Task has been successfully cancelled.")
+        if load_screen is not None:
+            load_screen.cancel()
+            try:
+                await load_screen
+            except asyncio.CancelledError:
+                verbose_print("Task has been successfully cancelled.")
 
 
 async def battery_task(interval=1):

@@ -1,5 +1,5 @@
 #!/bin/bash
-# By Jarda - Install script with systemd service setup
+# By Pytel - Install script with systemd service setup
 
 SERVICE_NAME="rpi_gotchi.service"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
