@@ -66,7 +66,8 @@ class Nokia_battery(Battery):
         return round(self.voltage, 3)
 
     def getCurrent_mA(self):
-        raise NotImplementedError("I am an abstract class and cannot be instantiated directly.")
+        current = self.power / self.voltage * 1000.0
+        return current
 
     def getPower_W(self):
         """
