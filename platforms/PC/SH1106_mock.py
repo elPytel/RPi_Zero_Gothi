@@ -113,4 +113,3 @@ class SH1106(object):
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.tk_image)
         self.window.update_idletasks()
         self.window.update()
-

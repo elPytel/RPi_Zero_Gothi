@@ -1,9 +1,9 @@
 ﻿#!/usr/bin/python
 # -*- coding:utf-8 -*-
 
-import SH1106
+import platforms.RPi.SH1106 as SH1106
 import time
-import config
+import platforms.RPi.config as config
 import traceback
 
 from PIL import Image, ImageDraw, ImageFont

@@ -25,12 +25,12 @@ else:
     DEBUG = True
 
 if RPI:
-    import config
-    import SH1106
-    from INA219 import *
+    import platforms.RPi.config as config
+    import platforms.RPi.SH1106 as SH1106
+    from platforms.RPi.INA219 import *
 else:
-    import SH1106_mock as SH1106
-    from INA219_mock import *
+    import platforms.PC.SH1106_mock as SH1106
+    from platforms.PC.INA219_mock import *
 
 
 # ---------- ASYNCIO TASKS ------------

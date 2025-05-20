@@ -1,4 +1,4 @@
-import config
+import platforms.RPi.config as config
 import time
 import numpy as np
 
