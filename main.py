@@ -11,44 +11,48 @@ from PIL import Image, ImageDraw, ImageFont
 from SlideShow import SlideShow
 
 DEBUG = False
-RPI = is_raspberry_pi()
+PLATFORM = detect_platform()
 ASSETS = "assets"
 FONTS = "fonts"
 FONT = 'Font.ttf'
 #FONT = 'Doto-Black.ttf'
 #FONT = 'Tiny5-Regular.ttf'
 
-if RPI:
-    print_success("Running on Raspberry Pi")
-else:
-    print_warning("Running on a different device than Raspberry Pi")
+print(f"Detected platform: {PLATFORM}")
+if PLATFORM == Platform.OTHER:
+    print_info("Enabling mock mode.")
     DEBUG = True
 
-if RPI:
+if PLATFORM == Platform.RPI_ZERO:
     import platforms.RPi.config as config
     import platforms.RPi.SH1106 as SH1106
     from platforms.RPi.INA219 import *
-else:
+elif PLATFORM == Platform.N900:
+    from platforms.N900.battery import Battery as Battery
     import platforms.PC.SH1106_mock as SH1106
-    from platforms.PC.INA219_mock import *
+elif PLATFORM == Platform.OTHER:
+    import platforms.PC.SH1106_mock as SH1106
+    from platforms.PC.battery import PC_mock as Battery
+else:
+    raise Exception("Unsupported platform. Exiting...")
 
 
 # ---------- ASYNCIO TASKS ------------
 
 async def init():
-    global disp, ina219, font20, font10
+    global disp, batt, font20, font10
     try:
         disp = SH1106.SH1106()
-        print_success("Initialized: display driver - SH1106")
+        print_success("Initialized: display driver")
         # Initialize library.
         disp.Init()
-        disp.clear()  
+        disp.clear()
 
         print_info("Loading splash screen...")
         load_screen = asyncio.create_task(splash_screen(0))
 
-        ina219 = INA219(addr=0x43)
-        print_success("Initialized: battery driver - INA219")
+        batt = Battery()
+        print_success("Initialized: battery driver")
         
         # join path to assets
         font_path = os.path.join(ASSETS, FONTS, FONT)
@@ -73,12 +77,11 @@ async def init():
 async def battery_task(interval=1):
     """Periodicky čte data z INA219 a aktualizuje displej"""
     while True:
-        bus_voltage = ina219.getBusVoltage_V()
-        shunt_voltage = ina219.getShuntVoltage_mV() / 1000
-        current = ina219.getCurrent_mA()
-        power = ina219.getPower_W()
-        percent = ina219.getRemainingPercent()
-        remaining_time = ina219.getRemainingTime()
+        bus_voltage = batt.getVoltage_V()
+        current = batt.getCurrent_mA()
+        power = batt.getPower_W()
+        percent = batt.getRemainingPercent()
+        remaining_time = batt.getRemainingTime()
 
         if remaining_time < 0:
             time_string = "infinite"
@@ -86,7 +89,7 @@ async def battery_task(interval=1):
             time_string = sec_to_hhmmss(remaining_time)
 
         if DEBUG:
-            print(f"[Battery] PSU Voltage: {(bus_voltage + shunt_voltage):.3f} V")
+            print(f"[Battery] Voltage:     {bus_voltage:.3f} V")
             print(f"[Battery] Current:     {current/1000:.3f} A")
             print(f"[Battery] Power:       {power:.3f} W")
             print(f"[Battery] Percent:     {percent:.1f}%")
@@ -127,7 +130,7 @@ async def input_task(interval=0.01):
         }
     
     while True:
-        if not RPI: # Mock mode
+        if not PLATFORM: # Mock mode
             # Simulate button presses for testing
             disp.window.update_idletasks()
 
@@ -139,13 +142,13 @@ async def input_task(interval=0.01):
             if button.was_just_pressed():
                 if name == "KEY1":
                     print("[Input] KEY1 pressed — Updating application...")
-                    if RPI:
+                    if PLATFORM:
                         update_application()
                     else:
                         raise SystemExit(0)
                 elif name == "KEY2":
                     print("[Input] KEY2 pressed — Vypínám RPi!")
-                    if RPI:
+                    if PLATFORM:
                         shutdown_system()
                     return
 

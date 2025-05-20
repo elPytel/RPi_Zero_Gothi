@@ -234,13 +234,13 @@ class INA219:
         
 if __name__=='__main__':
     # Create an INA219 instance.
-    ina219 = INA219(addr=0x43)
+    batt = INA219(addr=0x43)
     while True:
-        bus_voltage = ina219.getBusVoltage_V()             # voltage on V- (load side)
-        shunt_voltage = ina219.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
-        current = ina219.getCurrent_mA()                   # current in mA
-        power = ina219.getPower_W()                        # power in W
-        percent = ina219.getRemainingPercent()
+        bus_voltage = batt.getBusVoltage_V()             # voltage on V- (load side)
+        shunt_voltage = batt.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
+        current = batt.getCurrent_mA()                   # current in mA
+        power = batt.getPower_W()                        # power in W
+        percent = batt.getRemainingPercent()
 
         # INA219 measure bus voltage on the load side. So PSU voltage = bus_voltage + shunt_voltage
         print("PSU Voltage:   {:6.3f} V".format(bus_voltage + shunt_voltage))

@@ -1,14 +1,32 @@
 import sys
 import time
 import subprocess
+from enum import Enum, auto
 
-def is_raspberry_pi():
+class Platform(Enum):
+    #RPI_ZERO = auto()
+    #N900 = auto()
+    #OTHER = auto()
+    RPI_ZERO = "Raspberry Pi Zero"
+    N900 = "Nokia N900"
+    OTHER = "Other"
+
+def detect_platform():
     try:
         with open('/proc/cpuinfo', 'r') as f:
             cpuinfo = f.read()
-        return 'Raspberry Pi' in cpuinfo or 'BCM' in cpuinfo
-    except FileNotFoundError:
-        return False
+
+        if 'BCM' in cpuinfo or 'Raspberry Pi' in cpuinfo:
+            return Platform.RPI_ZERO
+        elif 'n900' in cpuinfo or 'omap3430' in cpuinfo or 'Nokia RX-51' in cpuinfo:
+            return Platform.N900
+        else:
+            return Platform.OTHER
+    
+    except Exception as e:
+        print(f"Could not detect platform: {e}")
+        return Platform.OTHER
+
 
 def update_application():
     """Will run update.sh script."""
