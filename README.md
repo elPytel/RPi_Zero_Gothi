@@ -20,6 +20,10 @@ You can use Nokia N900 with Postmarket OS and Python 3.
 As it is phone with a keyboard, battery, touchscreen and a stylus, it is a perfect device for this project. 
 SD card is used for storage (up to 400GB). 
 
+- [Postmarket OS](https://wiki.postmarketos.org/wiki/Nokia_N900_(nokia-n900))
+
+It is based on Alpine Linux and uses the mainline Linux kernel. It is designed to be lightweight and fast, with a focus on security and privacy. Postmarket OS is designed to run on a variety of devices, including the Nokia N900.
+
 ### RPi Zero WH
 
 I am using a Raspberry Pi Zero WH with a Waveshare UPS HAT and a 1.3inch OLED HAT. I have used demo code from the Waveshare website for OLED HAT and UPS HAT in this project.
@@ -104,3 +108,6 @@ are downloaded from [Google Fonts](https://fonts.google.com/).
 
 ## Software
 
+### Samba
+
+[www.raspberrypi.com:samba](https://www.raspberrypi.com/documentation/computers/remote-access.html#sharing-a-folder-from-your-raspberry-pi)

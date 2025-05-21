@@ -1,1 +1,5 @@
 python3-pip
+samba 
+samba-common-bin 
+smbclient 
+cifs-utils
