@@ -11,12 +11,12 @@ from PIL import Image, ImageDraw, ImageFont
 from SlideShow import SlideShow
 
 DEBUG = False
-PLATFORM = detect_platform()
 ASSETS = "assets"
 FONTS = "fonts"
 FONT = 'Font.ttf'
 #FONT = 'Doto-Black.ttf'
 #FONT = 'Tiny5-Regular.ttf'
+PLATFORM = detect_platform()
 
 print(f"Detected platform: {PLATFORM}")
 if PLATFORM == Platform.OTHER:
@@ -76,7 +76,6 @@ async def init():
 
 
 async def battery_task(interval=1):
-    """Periodicky čte data z INA219 a aktualizuje displej"""
     while True:
         bus_voltage = batt.getVoltage_V()
         current = batt.getCurrent_mA()
@@ -118,7 +117,7 @@ async def battery_task(interval=1):
         await asyncio.sleep(interval)
 
 async def input_task(interval=0.01):
-    """Periodicky čte tlačítka"""
+    """Periodicly reads GPIO pins and updates button states"""
     buttons = {
             "UP": (Button(), disp.RPI.GPIO_KEY_UP_PIN),
             "DOWN": (Button(), disp.RPI.GPIO_KEY_DOWN_PIN),
@@ -131,13 +130,13 @@ async def input_task(interval=0.01):
         }
     
     while True:
-        if not PLATFORM: # Mock mode
+        if PLATFORM == Platform.OTHER:
             # Simulate button presses for testing
             disp.window.update_idletasks()
 
         for name, (button, pin) in buttons.items():
             # Read the button state
-            raw_value = disp.RPI.digital_read(pin)  # 0 = pressed, 1 = released
+            raw_value = disp.RPI.digital_read(pin)
             button.update(raw_value)
 
             if button.was_just_pressed():
@@ -148,7 +147,7 @@ async def input_task(interval=0.01):
                     else:
                         raise SystemExit(0)
                 elif name == "KEY2":
-                    print("[Input] KEY2 pressed — Vypínám RPi!")
+                    print("[Input] KEY2 pressed — Shutting down...")
                     if PLATFORM:
                         shutdown_system()
                     return
@@ -162,14 +161,13 @@ async def input_task(interval=0.01):
         await asyncio.sleep(interval)
 
 async def splash_screen(duration=0):
-    """Zobrazí úvodní obrázek na začátku"""
+    """Display splash screen with loading animation"""
     # Loading slide show
     path = os.path.join(ASSETS, 'icons', 'Common', 'Loading_24')
     slides = SlideShow()
     slides.init_from_path(path)
 
     def loading():
-        """Funkce pro načítání obrázků"""
         if duration > 0:
             return time.time() < time_stemp + duration
         return True

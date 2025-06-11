@@ -1,5 +1,6 @@
 # Samba
-[RPi:samba](https://www.raspberrypi.com/documentation/computers/remote-access.html#sharing-a-folder-from-your-raspberry-pi)
+
+[www.raspberrypi.com:samba](https://www.raspberrypi.com/documentation/computers/remote-access.html#sharing-a-folder-from-your-raspberry-pi)
 
 ## Linux
 Create a Samba share on PostmarketOS:

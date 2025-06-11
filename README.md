@@ -109,5 +109,4 @@ are downloaded from [Google Fonts](https://fonts.google.com/).
 ## Software
 
 ### Samba
-
-[www.raspberrypi.com:samba](https://www.raspberrypi.com/documentation/computers/remote-access.html#sharing-a-folder-from-your-raspberry-pi)
+[Samba](/documentation/samba.md)

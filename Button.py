@@ -1,17 +1,17 @@
 class Button:
     def __init__(self):
-        self.last_state = False  # předchozí hodnota (True=stisknuto)
-        self.current_state = False  # aktuální hodnota
+        self.last_state = False
+        self.current_state = False
         self.just_pressed = False
         self.just_released = False
 
     def update(self, raw_value: bool):
-        """raw_value = co vrátí hardware (True=stisknuto)"""
+        """raw_value = True/False from GPIO pin"""
         self.just_pressed = False
         self.just_released = False
 
         if raw_value != self.current_state:
-            # Stav se změnil → edge detection
+            # Button state changed
             if raw_value:  # False → True
                 self.just_pressed = True
             else:  # True → False
