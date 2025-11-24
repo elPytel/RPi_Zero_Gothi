@@ -110,3 +110,23 @@ are downloaded from [Google Fonts](https://fonts.google.com/).
 
 ### Samba
 [Samba](/documentation/samba.md)
+
+## Sources & References
+
+nfc reader rpi
+- https://dratek.cz/arduino-platforma/833-rfid-ctecka-s-vestavenou-antenou.html
+- https://ozeki.hu/p_3023-how-to-setup-a-nfc-reader-on-raspberry-pi.html
+- https://www.recantha.co.uk/blog/?p=4844
+![](https://ozeki.hu/attachments/3023/NFC_MFRC522_RPI.webp)
+
+- https://hackaday.io/project/170875/logs?sort=oldest
+- https://www.hackster.io/zst123/fcfz-fully-compatible-flipper-zero-e686ba
+- https://github.com/Arduino-IRremote/Arduino-IRremote
+- https://github.com/djsime1/awesome-flipperzero
+- https://www.tomshardware.com/raspberry-pi/the-raspberry-pi-rp2040-hackbat-is-an-open-source-swiss-army-knife-pen-testing-tool
+- https://docs.flipper.net/zero/basics/first-start
+- https://docs.flipper.net/zero/basics/settings
+- https://docs.flipper.net/zero/basics/dolphin
+
+- https://github.com/flipperdevices/flipperzero-firmware/blob/dev/applications/services/gui/elements.h
+- https://github.com/flipperdevices/flipperzero-firmware/blob/dev/applications/services/gui/elements.h
