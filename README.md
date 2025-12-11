@@ -42,6 +42,9 @@ I am using a Raspberry Pi Zero WH with a Waveshare UPS HAT and a 1.3inch OLED HA
 
 ## Installation
 
+- [ssh](./documentation/ssh.md)
+- [samba](./documentation/samba.md)
+
 ### Prerequisites
 - Raspberry Pi OS Lite / N900 - Postmarket OS
 - Python 3.7 or higher
